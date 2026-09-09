@@ -1,3 +1,24 @@
+# ReDimNet2-b6, PAPER RECIPE ON MORE DATA (run E).
+#
+# Run D reproduces the reference exactly and can at best MATCH 0.287%, because
+# it trains on the same VoxCeleb2-dev the reference did. This arm is the attempt
+# to EXCEED it: the identical recipe, with VoxCeleb 1+2 dev instead.
+#
+# Exactly one variable differs from training_redimnet2_b6_paper.yaml -- the
+# training mix, and the label space and output width that follow from it:
+#
+#   dataset.train                 6 VoxCeleb2 splits -> 12 VoxCeleb 1+2 splits
+#   preprocessor.spk2utt          vox2_dualband_sp   -> vox12_dualband_sp
+#   model.spk_num                 17982              -> 21615
+#
+# Loss, scheduler, optimiser, epochs, batch size, mel bins and dataloader are
+# asserted equal to run D's at generation time, so any difference in the result
+# is attributable to the data. Validation stays the full 37,611-trial Vox1-O.
+#
+# Generated structurally by a script, not by editing: three regex edits on this
+# file's parent silently matched nothing, leaving VoxCeleb1 splits in a config
+# that was supposed to have dropped them.
+
 num_device: 4
 dataset:
   train:

@@ -1,3 +1,29 @@
+# ReDimNet2-b6, PAPER-FAITHFUL ARM (run D).
+#
+# Generated from training_redimnet2_b6.yaml by matching the released reference
+# recipe field by field:
+#   applications/speaker_rec/examples/vox2/recipes/redimnet2/b6/ptn.yaml
+# in PalabraAI/redimnet2. The recipe, not the paper text, is the source of
+# truth -- it is what produced 0.287% Vox1-O.
+#
+# Differences from the sibling arms A/B/C, all from the reference:
+#   VoxCeleb2-dev only (17,982 classes, not 21,615)
+#   SphereFace2-C, scale 32.0, lanbuda 0.7, t 3   (bit-exact port)
+#   margin ramp 0.0 -> 0.20 over epochs 20-40, increase_type exp
+#   ExponentialDecrease 0.1 -> 6e-5, 6-epoch warm-up, warm_from_zero true
+#   120 epochs, batch 140, num_workers 16, pin_memory false, prefetch 2
+#   F: 72  (fbank_args.num_mel_bins: 80 in the reference is dead config,
+#           because feat_type: tf makes the model use its own TFMelBanks)
+#
+# Known remaining gaps, see docs/spkid-reference-parity.md:
+#   augmentation is independent 0.5/0.5 here vs the reference's mutually
+#     exclusive aug_prob 0.6;
+#   loss_weight_decay_mult 5.0 is not applied;
+#   the LM finetuning stage needs a weight-only checkpoint init hook.
+#
+# Inline comments are absent because this file is generated structurally --
+# regex edits on the parent silently failed to match three times.
+
 num_device: 4
 dataset:
   train:
