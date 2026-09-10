@@ -86,6 +86,36 @@ def test_save_espnet_config(tmp_path):
     assert output_file.exists()
 
 
+def test_save_config_nonzero_local_rank_does_not_write(tmp_path, monkeypatch):
+    """Torchrun children cannot race the config writer before DDP starts."""
+    monkeypatch.setenv("LOCAL_RANK", "7")
+    output_file = tmp_path / "config.yaml"
+    save_espnet_config("unused.on.nonzero.rank", {}, output_file)
+    assert not output_file.exists()
+
+
+def test_save_config_atomic_replace_preserves_old_file_on_error(tmp_path, monkeypatch):
+    """Readers must never see partial YAML, even when serialization fails."""
+    import espnet3.utils.task_utils as module
+
+    class FakeTask:
+        @staticmethod
+        def get_default_config():
+            return {}
+
+    def fail(*args, **kwargs):
+        raise ValueError("serialization failed")
+
+    monkeypatch.setenv("LOCAL_RANK", "0")
+    monkeypatch.setattr(module, "get_task_class", lambda _: FakeTask)
+    monkeypatch.setattr(module, "yaml_no_alias_safe_dump", fail)
+    output_file = tmp_path / "config.yaml"
+    output_file.write_text("previous: complete\n")
+    with pytest.raises(ValueError, match="serialization failed"):
+        save_espnet_config("fake", {"model": {}}, output_file)
+    assert output_file.read_text() == "previous: complete\n"
+
+
 def test_save_espnet_config_accepts_output_directory(tmp_path):
     config_path = Path("test_utils") / "espnet3" / "config" / "model_ctc.yaml"
     output_dir = tmp_path / "saved_config"

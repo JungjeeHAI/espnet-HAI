@@ -1,5 +1,6 @@
 """ESPnet-3 Task class."""
 
+import os
 import sys
 from argparse import Namespace
 from pathlib import Path
@@ -60,7 +61,9 @@ def get_espnet_model(task: str, config: Union[Dict, DictConfig]) -> AbsESPnetMod
 def save_espnet_config(
     task: str, config: Union[Dict, DictConfig], output_dir: str
 ) -> None:
-    """Save the ESPnet config used for training to the output directory."""
+    """Atomically save config once per node, including before DDP initializes."""
+    if int(os.environ.get("LOCAL_RANK", "0")) != 0:
+        return
     ez_task = get_task_class(task)
 
     # workaround for calling get_default_config
@@ -116,5 +119,7 @@ def save_espnet_config(
         output_path = output_path / "config.yaml"
     # Use the no-alias dumper so the generated training config stays fully
     # readable.
-    with open(output_path, "w", encoding="utf-8") as f:
+    temporary = output_path.with_name(f"{output_path.name}.tmp.{os.getpid()}")
+    with open(temporary, "w", encoding="utf-8") as f:
         f.write(yaml_no_alias_safe_dump(default_config, indent=4, sort_keys=False))
+    temporary.replace(output_path)
