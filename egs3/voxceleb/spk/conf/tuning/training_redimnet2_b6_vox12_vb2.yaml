@@ -1,10 +1,10 @@
-# VB1: E recipe plus VoxBlink2 with the SAME 797,520-update budget.
+# VB1 (experiment 1, not VoxBlink1): E recipe plus VoxBlink2, 797,520 updates.
 # An epoch is 6,646 shuffled minibatches, not a full larger-corpus pass.
 # Lightning replaces the shuffled loader with DistributedSampler and calls
 # set_epoch each epoch, so a new random mixed-corpus subset is visited.
 # At batch 140 x 8 GPUs, total training exposures are 893,222,400 crops.
 # SPK_NUM MUST be set from the verified union; zero deliberately fails otherwise.
-# Validation is full Vox1-O at 8 seconds every 10,000 updates. Full-state
+# Validation is full Vox1-O at 8 seconds every 5,000 updates. Full-state
 # recovery every 2,000 updates; resume selects the latest global step.
 # No automatic LMFT: its mixed label-space conversion needs a separate config.
 
@@ -203,7 +203,7 @@ trainer:
     save_weights_only: false
   max_steps: 797520
   limit_train_batches: 6646
-  val_check_interval: 10000
+  val_check_interval: 5000
 dataloader:
   train:
     batch_size: 140
