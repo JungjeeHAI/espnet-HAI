@@ -207,13 +207,13 @@ trainer:
 dataloader:
   train:
     batch_size: 140
-    num_workers: 8
+    num_workers: 2
     shuffle: true
     drop_last: true
     pin_memory: false
     multiprocessing_context: spawn
     persistent_workers: true
-    prefetch_factor: 2
+    prefetch_factor: 1
   valid:
     batch_size: 16
     num_workers: 4
