@@ -168,6 +168,7 @@ trainer:
     save_on_train_epoch_end: false
     save_weights_only: false
   - _target_: espnet3.systems.spk.topology.TrainingTopologyProof
+    expected_batch_size: 48
   max_steps: 129380
   limit_train_batches: 25876
   val_check_interval: 5000
