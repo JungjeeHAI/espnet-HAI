@@ -10,12 +10,17 @@ from lightning.pytorch.callbacks import Callback
 class TrainingTopologyProof(Callback):
     """Record advancing ranks without introducing additional collectives."""
 
+    def __init__(self, expected_batch_size: int = 140):
+        """Set the per-rank batch that defines the intended global batch."""
+        super().__init__()
+        self.expected_batch_size = expected_batch_size
+
     def on_train_start(self, trainer, pl_module):
         """Reject a partial world or a changed effective batch."""
         assert trainer.world_size == 16
         assert trainer.num_nodes == 2 and trainer.num_devices == 8
         assert trainer.accumulate_grad_batches == 1
-        assert trainer.train_dataloader.batch_size == 140
+        assert trainer.train_dataloader.batch_size == self.expected_batch_size
         sampler = trainer.train_dataloader.sampler
         assert sampler.num_replicas == 16 and sampler.shuffle
 
